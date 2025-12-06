@@ -30,13 +30,6 @@
     </dd>
 
     <dt>
-      User
-    </dt>
-    <dd>
-      <%= @the_topic.user_id %>
-    </dd>
-
-    <dt>
       Created at
     </dt>
     <dd>
@@ -77,14 +70,6 @@
       </label>
 
       <input type="text" id="description_box" name="query_description" value="<%= @the_topic.description %>">
-    </div>
-
-    <div>
-      <label for="user_id_box">
-        User
-      </label>
-
-      <input type="text" id="user_id_box" name="query_user_id" value="<%= @the_topic.user_id %>">
     </div>
 
     <button type="submit">

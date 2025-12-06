@@ -1,6 +1,6 @@
 class TopicsController < ApplicationController
   def index
-    matching_topics = Topic.all
+    matching_topics = Topic.where({ :user_id => current_user.id })
 
     @list_of_topics = matching_topics.order({ :created_at => :desc })
 
@@ -21,7 +21,7 @@ class TopicsController < ApplicationController
     the_topic = Topic.new
     the_topic.name = params.fetch("query_name")
     the_topic.description = params.fetch("query_description")
-    the_topic.user_id = params.fetch("query_user_id")
+    the_topic.user_id = current_user.id
 
     if the_topic.valid?
       the_topic.save
@@ -37,7 +37,7 @@ class TopicsController < ApplicationController
 
     the_topic.name = params.fetch("query_name")
     the_topic.description = params.fetch("query_description")
-    the_topic.user_id = params.fetch("query_user_id")
+    the_topic.user_id = current_user.id
 
     if the_topic.valid?
       the_topic.save
