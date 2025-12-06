@@ -1,10 +1,11 @@
 Rails.application.routes.draw do
 
-  get("/", { :controller => "topics", :action => "index" })
+  get("/", { :controller => "pages", :action => "home" })
 
   #------------------------------
   # Routes for the Topic resource:
 
+  post("/generate_topic", { :controller => "topics", :action => "generate" })
   # CREATE
   post("/insert_topic", { :controller => "topics", :action => "create" })
 

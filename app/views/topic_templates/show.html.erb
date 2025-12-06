@@ -1,81 +1,42 @@
 <h1>
-  Topic #<%= @the_topic.id %> details
+  <%= @the_topic.name %>
 </h1>
 
 <article>
   <div>
-    <a href="/topics">
-      Go back
-    </a>
+    <%= @the_topic.description %>
   </div>
-
-  <div>
-    <a href="/delete_topic/<%= @the_topic.id %>">
-      Delete topic
-    </a>
-  </div>
-  <dl>
-    <dt>
-      Name
-    </dt>
-    <dd>
-      <%= @the_topic.name %>
-    </dd>
-
-    <dt>
-      Description
-    </dt>
-    <dd>
-      <%= @the_topic.description %>
-    </dd>
-
-    <dt>
-      Created at
-    </dt>
-    <dd>
-      <%= time_ago_in_words(@the_topic.created_at) %> ago
-    </dd>
-
-    <dt>
-      Updated at
-    </dt>
-    <dd>
-      <%= time_ago_in_words(@the_topic.updated_at) %> ago
-    </dd>
-  </dl>
 </article>
-
-<hr>
-
 
 <article>
-  <header>
-    <h2>
-      Edit topic
-    </h2>
-  </header>
-
-  <form action="/modify_topic/<%= @the_topic.id %>"  method="post" >
+  <h3>
+    Upload any notes, class slides, or materials you have on your topic
+  </h3>
+  <form action="/insert_note" method="post">
     <div>
-      <label for="name_box">
-        Name
+      <label for="content_box">
+        Content
       </label>
-
-      <input type="text" id="name_box" name="query_name" value="<%= @the_topic.name %>">
+      <input type="text" id="content_box" name="query_content">
     </div>
-
-    <div>
-      <label for="description_box">
-        Description
-      </label>
-
-      <input type="text" id="description_box" name="query_description" value="<%= @the_topic.description %>">
-    </div>
-
+    <input type="text" id="topic_box" name="query_topic_id" value=<%= @the_topic.id %> hidden>
     <button type="submit">
-      Update topic
+      Upload note
     </button>
   </form>
-</article>
 
-<hr>
+  <div>
+    <ul>
+      <% @list_of_notes.each do |a_note| %>
+        <li>
+          <div>
+          Note #<%= a_note.id %>
+          </div>
+          <div>
+            <%= "#{a_note.content[0..37]}..." %>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</article>

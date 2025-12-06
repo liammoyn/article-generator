@@ -24,9 +24,9 @@ class NotesController < ApplicationController
 
     if the_note.valid?
       the_note.save
-      redirect_to("/notes", { :notice => "Note created successfully." })
+      redirect_to("/topics/#{the_note.topic_id}", { :note => "Note created successfully" } )
     else
-      redirect_to("/notes", { :alert => the_note.errors.full_messages.to_sentence })
+      redirect_back(:fallback_location => "/", :alert => the_note.errors.full_messages.to_sentence)
     end
   end
 
