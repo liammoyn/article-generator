@@ -4,7 +4,8 @@ Rails.application.routes.draw do
 
   post("/generate_topic", { :controller => "topics", :action => "generate" })
   post("/generate_article", { :controller => "articles", :action => "generate" })
-  post("/generate_section/:path_id", { :controller => "sections", :action => "generate" })
+  get("/generate_section/:path_id", { :controller => "sections", :action => "generate" })
+  post("/insert_file_note", { :controller => "notes", :action => "file" })
 
   #------------------------------
   # Routes for the Topic resource:

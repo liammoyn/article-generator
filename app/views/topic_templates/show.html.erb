@@ -9,86 +9,106 @@
   <%= @the_topic.name %>
 </h1>
 
-<div class="card">
+<div class="card mb-3">
   <div class="card-body">
     <h4>Topic Summary</h4>
     <%= @the_topic.description %>
   </div>
 </div>
 
-<div class="card">
+<div class="card  mb-3">
   <div class="card-body">
     <h4>
       Upload any notes, class slides, or materials you have on your topic
     </h4>
-    <form action="/insert_note" method="post">
-      <div>
-        <label for="content_box">
-          Content
-        </label>
-        <input type="text" id="content_box" name="query_content">
+    <form action="/insert_file_note" method="post" enctype="multipart/form-data" class="mb-3">
+      <div class="mb-2">
+        <input class="form-control" type="file" name="query_file" accept="application/pdf,text/plain"/>
       </div>
       <input type="text" id="topic_box" name="query_topic_id" value=<%= @the_topic.id %> hidden>
-      <button type="submit">
+      <button class="btn btn-primary" type="submit">
         Upload note
       </button>
     </form>
 
     <div>
-      <ul>
-        <% @list_of_notes.each do |a_note| %>
-          <li>
+      <% @list_of_notes.each_with_index do |a_note, idx| %>
+        <div class="card card-body mb-2">
+          <div class="d-flex justify-content-between">
             <div>
-              Note #<%= a_note.id %>
+            <% if a_note.name.present? %>
+              <%= a_note.name %>
+            <% else %>
+              Note #<%= idx + 1 %>
+            <% end %>
             </div>
-            <div>
-              <%= "#{a_note.content[0..37]}..." %>
-            </div>
-          </li>
-        <% end %>
-      </ul>
+            <a href="<%= "/delete_note/#{a_note.id}" %>" class="btn" ><i class="bi bi-x-circle"></i></a>
+          </div>
+          <div>
+            <%# Display a preview of a_note either using content or the file field  %>
+            <% if a_note.file.attached? %>
+              <% ct = a_note.file.blob.content_type %>
+              <% if ct == "application/pdf" %>
+                <div class="mb-2">
+                  <iframe src="<%= rails_blob_path(a_note.file, disposition: "inline") %>" width="300" height="100"></iframe>
+                </div>
+                <div>
+                  <%= link_to "Open PDF", rails_blob_path(a_note.file, disposition: "inline"), target: "_blank" %>
+                </div>
+              <% else %>
+                <div>
+                  Unknown file type
+                </div>
+              <% end %>
+            <% else %>
+              <div>
+                <% preview = a_note.content.blank? ? "" : a_note.content %>
+                <%= preview.truncate(60, omission: "...")%>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
     </div>
   </div>
 </div>
 
-<div class="card">
-  <div class="card-body">
-    <h4>Write an article on...</h4>
-    <ul>
-      <% @list_of_ideas.each do |a_idea| %>
-        <li>
-          <button name="ai_article_idea">
-            <%= a_idea[:description] %>
-          </button>
-        </li>
-      <% end %>
-    </ul>
-    <form action="/generate_article" method="post">
-      <label for="aritcle_idea_box">Or choose your own title...</label>
-      <input type="text" id="aritcle_idea_box" name="query_user_description" placeholder="">
-      <input type="text" name="query_topic_id" value=<%= @the_topic.id %> hidden>
-      <button type="submit">Generate</button>
-    </form>
+<% if @list_of_notes.length > 0 %>
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="mb-3">
+        <h4 class="card-title">Write an article on...</h1>
+      </div>
+      <div class="container-fluid">
+        <form action="/generate_article" method="post">
+          <input type="text" name="query_topic_id" value=<%= @the_topic.id %> hidden>
+          <input class="form-control w-75 mb-2" type="text" id="aritcle_idea_box" name="query_user_description" placeholder="">
+          <button class="btn btn-primary" type="submit">Generate</button>
+        </form>
+      </div>
+    </div>
   </div>
-</div>
+<% end %>
 
-<div class="card">
-  <div class="card-body">
-    <h4>Or revisit your old articles...</h4>
-    <% @list_of_articles.each do |a_article| %>
-      <a class="card link-underline link-underline-opacity-0 mb-3" href=<%= "/articles/#{a_article.id}" %> >
-        <div class="card-header d-flex justify-content-between">
-          <h5>
-            <%= a_article.title %>
-          </h5>
-          <i class="bi bi-arrow-right-circle"></i>
-        </div>
-        <div class="card-body">
-          <div>
-            <%= a_article.summary %>
+<% if @list_of_articles.length > 0 %>
+  <div class="card  mb-3">
+    <div class="card-body">
+      <h4>Or revisit your old articles...</h4>
+      <% @list_of_articles.each do |a_article| %>
+        <a class="card link-underline link-underline-opacity-0 mb-3" href=<%= "/articles/#{a_article.id}" %> >
+          <div class="card-header d-flex justify-content-between">
+            <h5>
+              <%= a_article.title %>
+            </h5>
+            <i class="bi bi-arrow-right-circle"></i>
           </div>
-        </div>
-      </a>
-    <% end %>
+          <div class="card-body">
+            <div>
+              <%= a_article.summary %>
+            </div>
+          </div>
+        </a>
+      <% end %>
+    </div>
   </div>
-</div>
+<% end %>

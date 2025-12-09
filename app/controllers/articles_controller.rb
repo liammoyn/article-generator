@@ -23,7 +23,7 @@ class ArticlesController < ApplicationController
     topic_id = params.fetch("query_topic_id")
     user_description = params.fetch("query_user_description")
 
-    topic_generation_system_prompt = "You are a tool for generating articles on different topics for students using the notes they have acquired. You will read user descriptions of the article they want to write about and format their idea into a title, short summary, and proposed section outline. The title should use the language of the user input and be short and straightforward. There should be no more than 5 sections and each one should have a title that makes it clear what the section is about. The summary should cover the same sections described but in a sentence format."
+    topic_generation_system_prompt = "You are a tool for generating articles on different topics for students using the notes they have acquired. You will read user descriptions of the article they want to write along with notes they have about the topic. You should format their idea into a title, short summary, and proposed section outline taking into account the information included in the notes. The title should use the language of the user description of their idea and be short and straightforward. There should be no more than 5 sections and each one should have a title that makes it clear what the section is about. The summary should cover the same sections described but in a sentence format."
     topic_generation_schema = <<~JSON
     {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -63,9 +63,25 @@ class ArticlesController < ApplicationController
     }
     JSON
 
+    notes_with_files = Note.where({ :topic_id => topic_id }).with_attached_file.where.associated(:file_attachment)
+    note_file_urls = notes_with_files.map do |note|
+      local_file_path = ActiveStorage::Blob.service.path_for(note.file.key)
+      # TODO: Support upload of non-local storage
+      # rails_blob_url(note.file, only_path: true)
+      local_file_path
+    end
+    notes_with_content = Note.where({ :topic_id => topic_id }).where.not(content: [ nil, "" ])
+    note_content_string = ""
+    notes_with_content.each_with_index do |note, idx|
+      note_name = note.name.present? ? note.name : idx
+      note_content_string << "#{note_name}\n" << note.content << "\n"
+    end
+
+    user_prompt = "User Idea:\n#{user_description}\n\n User Notes:\n#{note_content_string}"
+
     c = AI::Chat.new
     c.system(topic_generation_system_prompt)
-    c.user(user_description)
+    c.user(user_prompt, files: note_file_urls)
     c.schema = topic_generation_schema
 
     ai_response = c.generate!
